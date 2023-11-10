@@ -2,7 +2,7 @@ import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 import React, { Component } from "react";
 import { COLORS } from "../../constants";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
-import { styles } from "../styles";
+import { styles } from "../../styles";
 import Quote from "../../components/Quote/Quote";
 import { motivations } from "../../constants/motivations";
 import Footer from "../../components/Footer/Footer";

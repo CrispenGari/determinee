@@ -1,7 +1,7 @@
 import { Text, SafeAreaView, View } from "react-native";
 import React, { Component } from "react";
 import { APP_NAME } from "../../constants";
-import { styles } from "../../screens/styles";
+import { styles } from "../../styles";
 
 export class Footer extends Component {
   render() {

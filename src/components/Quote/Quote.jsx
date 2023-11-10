@@ -1,6 +1,6 @@
 import { Text, View, Image, StyleSheet } from "react-native";
 import React, { Component } from "react";
-import { styles } from "../../screens/styles";
+import { styles } from "../../styles";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS, logo } from "../../constants";
 import { TouchableOpacity } from "react-native-gesture-handler";
