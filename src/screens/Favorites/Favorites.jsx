@@ -3,7 +3,8 @@ import React, { Component } from "react";
 import { onImpact, retrieve } from "../../utils";
 import AppStackBackButton from "../../components/AppStackBackButton/AppStackBackButton";
 import { COLORS, FONTS, KEYS } from "../../constants";
-
+import { motivations } from "../../constants/motivations";
+import FavoriteQuote from "../../components/FavoriteQuote/FavoriteQuote";
 export class Favorites extends Component {
   constructor(props) {
     super(props);
@@ -48,9 +49,19 @@ export class Favorites extends Component {
   }
   render() {
     return (
-      <View>
-        <Text>Favorites</Text>
-      </View>
+      <FlatList
+        data={motivations}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+        scrollEventThrottle={16}
+        contentContainerStyle={{
+          backgroundColor: COLORS.tertiary,
+          padding: 10,
+          paddingBottom: 100,
+        }}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={({ item }) => <FavoriteQuote quote={item} />}
+      />
     );
   }
 }
