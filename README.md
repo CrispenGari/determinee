@@ -12,7 +12,7 @@ The application `UI` looks as follows:
 <img src="/images/2.jpeg" alt="preview" width="200"/>
 </p>
 
-> You can download the `apk` file for android of this app at [`determinee`]().
+> You can download the `apk` file for android of this app at [`determinee`](https://expo.dev/artifacts/eas/aujtTXM5JLzTf6utQqAYgF.apk).
 
 ### Local
 
