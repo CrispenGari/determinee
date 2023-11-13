@@ -2,26 +2,74 @@ import { Text, View, Image, StyleSheet } from "react-native";
 import React, { Component } from "react";
 import { styles } from "../../styles";
 import { LinearGradient } from "expo-linear-gradient";
-import { COLORS, logo } from "../../constants";
+import { COLORS, KEYS, logo } from "../../constants";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-
+import * as Clipboard from "expo-clipboard";
+import { onImpact, playSound, retrieve, store } from "../../utils";
 export class FavoriteQuote extends Component {
   constructor(props) {
     super(props);
+    this.copy = this.copy.bind(this);
+    this.unlike = this.unlike.bind(this);
     this.state = {
-      liked: true,
+      settings: { haptics: true, sound: true },
     };
   }
 
-  copy() {}
-  unlike() {}
+  async componentDidMount() {
+    const [appSettings] = await Promise.allSettled([
+      retrieve(KEYS.APP_SETTINGS),
+    ]);
+    if (appSettings.status === "fulfilled") {
+      if (appSettings.value) {
+        const d = JSON.parse(appSettings.value);
+        this.setState((state) => ({
+          ...state,
+          settings: { ...state.settings, haptics: d.haptics, sound: d.sound },
+        }));
+      }
+    }
+  }
+
+  async copy() {
+    if (this.state.settings.haptics) {
+      onImpact();
+    }
+    await Clipboard.setStringAsync(
+      `${this.props.quote.quote} ~ ${this.props.quote.author}`
+    ).then(() => {
+      if (this.state.settings.sound) {
+        playSound();
+      }
+    });
+  }
+  async unlike() {
+    if (this.state.settings.haptics) {
+      onImpact();
+    }
+    const favs = await retrieve(KEYS.FAVORITES);
+    if (!!!favs) {
+      await store(KEYS.FAVORITES, JSON.stringify([]));
+      if (this.state.settings.sound) {
+        playSound();
+      }
+    } else {
+      const f = JSON.parse(favs).filter(
+        (q) => q.quote !== this.props.quote.quote
+      );
+      await store(KEYS.FAVORITES, JSON.stringify(f));
+      this.props.refetchQuotes();
+      if (this.state.settings.sound) {
+        playSound();
+      }
+    }
+  }
   render() {
     const {
       props: { quote },
-      state: { liked },
-      copy,
 
+      copy,
       unlike,
     } = this;
     return (
@@ -91,11 +139,7 @@ export class FavoriteQuote extends Component {
             ]}
             activeOpacity={0.7}
           >
-            <MaterialIcons
-              name={liked ? "favorite" : "favorite-border"}
-              size={24}
-              color={COLORS.white}
-            />
+            <MaterialIcons name={"favorite"} size={24} color={COLORS.white} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={copy}

@@ -1,6 +1,6 @@
-import { ScrollView, Platform } from "react-native";
+import { ScrollView, Platform, Linking, Alert } from "react-native";
 import React, { Component } from "react";
-import { COLORS, FONTS, KEYS } from "../../constants";
+import { APP_NAME, COLORS, FONTS, KEYS } from "../../constants";
 import { onImpact, retrieve, store } from "../../utils";
 import AppStackBackButton from "../../components/AppStackBackButton/AppStackBackButton";
 import SettingItem from "../../components/SettingItem/SettingItem";
@@ -18,6 +18,7 @@ export class Settings extends Component {
     };
     this.updateSound = this.updateSound.bind(this);
     this.updateHaptics = this.updateHaptics.bind(this);
+    this.clearFavorites = this.clearFavorites.bind(this);
   }
   componentDidMount() {
     this.props.navigation.setOptions({
@@ -98,11 +99,46 @@ export class Settings extends Component {
       }));
     });
   }
+  clearFavorites() {
+    if (this.state.settings.haptics) {
+      onImpact();
+    }
+    Alert.alert(
+      APP_NAME,
+      `Are you sure you want to clear your favorite quotes?`,
+      [
+        {
+          text: "Clear All",
+          style: "destructive",
+          onPress: async () => {
+            if (this.state.settings.haptics) {
+              onImpact();
+            }
+            await store(KEYS.FAVORITES, JSON.stringify([]));
+          },
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => {
+            if (this.state.settings.haptics) {
+              onImpact();
+            }
+          },
+        },
+      ],
+      {
+        cancelable: false,
+      }
+    );
+  }
+
   render() {
     const {
       state: { settings },
       updateHaptics,
       updateSound,
+      clearFavorites,
     } = this;
     return (
       <ScrollView
@@ -114,7 +150,7 @@ export class Settings extends Component {
         }}
         style={{ flex: 1, backgroundColor: COLORS.tertiary }}
       >
-        <Divider color={COLORS.primary} title="MISC" />
+        <Divider color={COLORS.black} title="MISC" />
         <SettingItem
           title={settings.haptics ? "Disable Haptics" : "Enable Haptics"}
           Icon={
@@ -135,11 +171,7 @@ export class Settings extends Component {
           onPress={updateHaptics}
         />
         <SettingItem
-          title={
-            settings.sound
-              ? "Disable Sound and Music"
-              : "Enable Sound and Music"
-          }
+          title={settings.sound ? "Disable Sound" : "Enable Sound"}
           Icon={
             settings.sound ? (
               <Ionicons
@@ -183,6 +215,25 @@ export class Settings extends Component {
               onImpact();
             }
             await onFetchUpdateAsync();
+          }}
+        />
+        <Divider color={COLORS.black} title="PERSONALIZATION & STORAGE" />
+        <SettingItem
+          title="Clear Favorite Quotes"
+          Icon={<MaterialIcons name="clear-all" size={24} color={COLORS.red} />}
+          onPress={clearFavorites}
+        />
+        <Divider color={COLORS.black} title="ISSUES & BUGS" />
+        <SettingItem
+          title="Report an Issue"
+          Icon={<Ionicons name="bug" size={24} color={COLORS.red} />}
+          onPress={async () => {
+            if (settings.haptics) {
+              onImpact();
+            }
+            await Linking.openURL(
+              "https://github.com/CrispenGari/determinee/issues"
+            );
           }}
         />
       </ScrollView>

@@ -2,6 +2,8 @@ export const APP_NAME = "déterminée";
 
 export const KEYS = {
   APP_SETTINGS: "set:",
+  FAVORITES: "fav:",
+  DAY_QUOTE_INDEX: "idx:",
 };
 export const COLORS = {
   main: "#6096B4",

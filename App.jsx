@@ -1,10 +1,21 @@
 import "react-native-gesture-handler";
-import { Text, View, StatusBar, LogBox } from "react-native";
+import { registerRootComponent } from "expo";
+import { StatusBar, LogBox } from "react-native";
 import React, { Component } from "react";
 import { loadAsync } from "expo-font";
 import { Fonts } from "./src/constants";
 import Loading from "./src/components/Loading/Loading";
 import Router from "./src/routes/Router";
+import * as Notifications from "expo-notifications";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+
 LogBox.ignoreLogs;
 LogBox.ignoreAllLogs();
 
@@ -31,11 +42,11 @@ export class App extends Component {
     if (!loaded) return <Loading />;
     return (
       <>
-        <StatusBar barStyle={"light-content"} />
+        <StatusBar barStyle={"default"} />
         <Router />
       </>
     );
   }
 }
 
-export default App;
+registerRootComponent(App);

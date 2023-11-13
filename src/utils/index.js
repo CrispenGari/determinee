@@ -9,22 +9,22 @@ import { Audio } from "expo-av";
 
 let sound;
 
-// export const playSound = async () => {
-//   const { sound: s, status } = await Audio.Sound.createAsync(
-//     require("../../assets/sounds/tweeted.wav"),
-//     {
-//       shouldPlay: true,
-//       isLooping: false,
-//       isMuted: false,
-//     }
-//   );
-//   if (status.isLoaded) {
-//     sound = s;
-//   }
-//   if (!!sound) {
-//     await sound.playAsync().catch((err) => console.log(err));
-//   }
-// };
+export const playSound = async () => {
+  const { sound: s, status } = await Audio.Sound.createAsync(
+    require("../../assets/sounds/sound.mp3"),
+    {
+      shouldPlay: true,
+      isLooping: false,
+      isMuted: false,
+    }
+  );
+  if (status.isLoaded) {
+    sound = s;
+  }
+  if (!!sound) {
+    await sound.playAsync().catch((err) => console.log(err));
+  }
+};
 
 export const rateApp = async () => {
   const available = await StoreReview.isAvailableAsync();
@@ -60,6 +60,8 @@ export const schedulePushNotification = async ({
   badge,
   subtitle,
 }) => {
+  const date = new Date();
+  const day = date.getDay();
   await Notifications.scheduleNotificationAsync({
     content: {
       title,
@@ -67,10 +69,15 @@ export const schedulePushNotification = async ({
       data,
       badge,
       color: COLORS.primary,
-      sound: "notification.wav",
+      sound: "default",
       subtitle,
     },
-    trigger: { seconds: 2 },
+    trigger: {
+      // repeats: true,
+      hour: 12,
+      minute: 6,
+      day: day,
+    },
   });
 };
 

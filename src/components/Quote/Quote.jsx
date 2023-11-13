@@ -2,28 +2,115 @@ import { Text, View, Image, StyleSheet } from "react-native";
 import React, { Component } from "react";
 import { styles } from "../../styles";
 import { LinearGradient } from "expo-linear-gradient";
-import { COLORS, logo } from "../../constants";
+import { COLORS, KEYS, logo } from "../../constants";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import TypeWriter from "react-native-typewriter";
+import { onImpact, playSound, retrieve, store } from "../../utils";
+import * as Clipboard from "expo-clipboard";
 export class Quote extends Component {
   constructor(props) {
     super(props);
     this.state = {
       liked: false,
+      settings: { haptics: true, sound: true },
     };
+    this.like = this.like.bind(this);
+    this.unlike = this.unlike.bind(this);
+    this.copy = this.copy.bind(this);
   }
 
-  copy() {}
-  shuffle() {}
-  like() {}
+  async componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.quote.quote !== this.props.quote.quote) {
+      const favs = await retrieve(KEYS.FAVORITES);
+      if (!!!favs) {
+        this.setState((state) => ({ ...state, liked: false }));
+      } else {
+        const f = JSON.parse(favs);
+        const liked = f.find((q) => q.quote === this.props.quote.quote);
+        this.setState((state) => ({ ...state, liked: !!liked }));
+      }
+    }
+  }
+
+  async componentDidMount() {
+    const [appSettings] = await Promise.allSettled([
+      retrieve(KEYS.APP_SETTINGS),
+    ]);
+    if (appSettings.status === "fulfilled") {
+      if (appSettings.value) {
+        const d = JSON.parse(appSettings.value);
+        this.setState((state) => ({
+          ...state,
+          settings: { ...state.settings, haptics: d.haptics, sound: d.sound },
+        }));
+      }
+    }
+    const favs = await retrieve(KEYS.FAVORITES);
+    if (!!!favs) {
+      this.setState((state) => ({ ...state, liked: false }));
+    } else {
+      const f = JSON.parse(favs);
+      const liked = f.find((q) => q.quote === this.props.quote.quote);
+      this.setState((state) => ({ ...state, liked: !!liked }));
+    }
+  }
+  async copy() {
+    if (this.state.settings.haptics) {
+      onImpact();
+    }
+    await Clipboard.setStringAsync(
+      `${this.props.quote.quote} ~ ${this.props.quote.author}`
+    ).then(() => {
+      if (this.state.settings.sound) {
+        playSound();
+      }
+    });
+  }
+  async like() {
+    if (this.state.settings.haptics) {
+      onImpact();
+    }
+    const favs = await retrieve(KEYS.FAVORITES);
+    if (!!!favs) {
+      await store(KEYS.FAVORITES, JSON.stringify([]));
+    } else {
+      const f = JSON.parse(favs);
+      this.setState((state) => ({ ...state, liked: true }));
+      await store(KEYS.FAVORITES, JSON.stringify([this.props.quote, ...f]));
+    }
+    if (this.state.settings.sound) {
+      playSound();
+    }
+  }
+
+  async unlike() {
+    if (this.state.settings.haptics) {
+      onImpact();
+    }
+    const favs = await retrieve(KEYS.FAVORITES);
+
+    if (!!!favs) {
+      await store(KEYS.FAVORITES, JSON.stringify([]));
+    } else {
+      const f = JSON.parse(favs).filter(
+        (q) => q.quote !== this.props.quote.quote
+      );
+      this.setState((state) => ({ ...state, liked: false }));
+      await store(KEYS.FAVORITES, JSON.stringify(f));
+    }
+    if (this.state.settings.sound) {
+      playSound();
+    }
+  }
+
   render() {
     const {
-      props: { quote },
+      props: { shuffle, quote },
       state: { liked },
       copy,
-      shuffle,
       like,
+      unlike,
     } = this;
     return (
       <LinearGradient
@@ -89,7 +176,7 @@ export class Quote extends Component {
             <Ionicons name="shuffle-outline" size={24} color={COLORS.white} />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={like}
+            onPress={liked ? unlike : like}
             style={[
               s.btn,
               {
