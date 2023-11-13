@@ -26,7 +26,7 @@ export class Home extends Component {
   async componentDidMount() {
     const [appSettings, index] = await Promise.allSettled([
       retrieve(KEYS.APP_SETTINGS),
-      KEYS.DAY_QUOTE_INDEX,
+      retrieve(KEYS.DAY_QUOTE_INDEX),
     ]);
     if (appSettings.status === "fulfilled") {
       if (appSettings.value) {
@@ -51,7 +51,7 @@ export class Home extends Component {
         });
       } else {
         const i = JSON.parse(index.value);
-        this.setState((state) => ({ ...state, quote: motivations[i] }));
+        this.setState((state) => ({ ...state, quote: motivations[i.index] }));
       }
     }
   }

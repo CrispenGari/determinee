@@ -73,12 +73,13 @@ export const schedulePushNotification = async ({
       subtitle,
     },
     trigger: {
-      // repeats: true,
-      hour: 12,
-      minute: 6,
+      repeats: true,
+      hour: 23,
+      minute: 59,
+      second: 60,
       day: day,
     },
-  });
+  }).catch((error) => console.log({ error }));
 };
 
 export const store = async (key, value) => {
