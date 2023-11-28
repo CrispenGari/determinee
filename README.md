@@ -2,6 +2,10 @@
 
 🌓 determinee is a motivational quotes mobile app to keep up with your day and helps you to have dedicated and determined goals.
 
+<p align="center">
+<img src="/images/logo.png" alt="logo" width="200"/>
+</p>
+
 ### Preview
 
 The application `UI` looks as follows:
